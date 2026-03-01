@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Men Outfit Selector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0d0d0d;
+  color:white;
+  text-align:center;
+}
+
+h1,h2{margin:15px 0;}
+
+.step{display:none;padding:15px;}
+.active{display:block;}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:15px;
+}
+
+.card{
+  background:#1a1a1a;
+  border-radius:15px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:0.4s;
+}
+
+.card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+}
+
+.card p{
+  margin:0;
+  padding:8px;
+}
+
+.card:hover{
+  transform:scale(1.05);
+}
+
+.selected{
+  transform:scale(1.2);
+  box-shadow:0 0 20px gold;
+}
+
+#loading{
+  font-size:22px;
+  animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+  0%{opacity:0.5}
+  50%{opacity:1}
+  100%{opacity:0.5}
+}
+
+#outfits{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;
+  padding:10px;
+}
+
+#outfits img{
+  width:100%;
+  border-radius:12px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+#outfits img:hover{
+  transform:scale(1.05);
+}
+
+#popup{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:black;
+  justify-content:center;
+  align-items:center;
+  z-index:10;
+}
+
+#popup img{
+  max-width:90%;
+  max-height:90%;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Find Your Outfit 😎</h1>
+
+<!-- STEP 1 CLIMATE -->
+<div id="step1" class="step active">
+<h2>Select Climate</h2>
+<div class="grid">
+<div class="card" onclick="selectClimate('Summer',this)"><img src="summer.jpg"><p>Summer</p></div>
+<div class="card" onclick="selectClimate('Winter',this)"><img src="winter.jpg"><p>Winter</p></div>
+<div class="card" onclick="selectClimate('Rainy',this)"><img src="rainy.jpg"><p>Rainy</p></div>
+</div>
+</div>
+
+<!-- STEP 2 OCCASION -->
+<div id="step2" class="step">
+<h2>Select Occasion</h2>
+<div class="grid">
+<div class="card" onclick="selectOccasion('Casual',this)"><img src="casual.jpg"><p>Casual</p></div>
+<div class="card" onclick="selectOccasion('Formal',this)"><img src="formal.jpg"><p>Formal</p></div>
+<div class="card" onclick="selectOccasion('Semi-formal',this)"><img src="semiformal.jpg"><p>Semi-formal</p></div>
+<div class="card" onclick="selectOccasion('Business',this)"><img src="business.jpg"><p>Business</p></div>
+<div class="card" onclick="selectOccasion('Travel',this)"><img src="travel.jpg"><p>Travel</p></div>
+<div class="card" onclick="selectOccasion('Party',this)"><img src="party.jpg"><p>Party</p></div>
+<div class="card" onclick="selectOccasion('Wedding',this)"><img src="wedding.jpg"><p>Wedding</p></div>
+<div class="card" onclick="selectOccasion('Sports',this)"><img src="sports.jpg"><p>Sports</p></div>
+<div class="card" onclick="selectOccasion('Outdoor',this)"><img src="outdoor.jpg"><p>Outdoor</p></div>
+<div class="card" onclick="selectOccasion('Daily wear',this)"><img src="daily.jpg"><p>Daily wear</p></div>
+<div class="card" onclick="selectOccasion('Date night',this)"><img src="date.jpg"><p>Date night</p></div>
+<div class="card" onclick="selectOccasion('Festival',this)"><img src="festival.jpg"><p>Festival</p></div>
+</div>
+</div>
+
+<!-- STEP 3 PLACE -->
+<div id="step3" class="step">
+<h2>Select Place</h2>
+<div class="grid">
+<div class="card" onclick="selectPlace('Coffee Shop',this)"><img src="coffee.jpg"><p>Coffee Shop</p></div>
+<div class="card" onclick="selectPlace('Restaurant',this)"><img src="restaurant.jpg"><p>Restaurant</p></div>
+<div class="card" onclick="selectPlace('Shopping Mall',this)"><img src="mall.jpg"><p>Shopping Mall</p></div>
+<div class="card" onclick="selectPlace('Office',this)"><img src="office.jpg"><p>Office</p></div>
+<div class="card" onclick="selectPlace('Friend House',this)"><img src="friend.jpg"><p>Friend House</p></div>
+<div class="card" onclick="selectPlace('Party Hall',this)"><img src="partyhall.jpg"><p>Party Hall</p></div>
+<div class="card" onclick="selectPlace('Wedding Hall',this)"><img src="weddinghall.jpg"><p>Wedding Hall</p></div>
+<div class="card" onclick="selectPlace('Park',this)"><img src="park.jpg"><p>Park</p></div>
+<div class="card" onclick="selectPlace('Airport',this)"><img src="airport.jpg"><p>Airport</p></div>
+<div class="card" onclick="selectPlace('Library',this)"><img src="library.jpg"><p>Library</p></div>
+<div class="card" onclick="selectPlace('College',this)"><img src="college.jpg"><p>College</p></div>
+<div class="card" onclick="selectPlace('Public Meeting',this)"><img src="meeting.jpg"><p>Public Meeting</p></div>
+</div>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="step">
+<h2>Your style is loading... 😎</h2>
+<p>Be classy with your outfit ✨</p>
+</div>
+
+<!-- OUTFITS -->
+<div id="outfits"></div>
+
+<!-- POPUP -->
+<div id="popup" onclick="this.style.display='none'">
+<img id="popupImg">
+</div>
+
+<script>
+let climate="", occasion="", place="";
+
+const climates=["Summer","Winter","Rainy"];
+const occasions=["Casual","Formal","Semi-formal","Business","Travel","Party","Wedding","Sports","Outdoor","Daily wear","Date night","Festival"];
+const places=["Coffee Shop","Restaurant","Shopping Mall","Office","Friend House","Party Hall","Wedding Hall","Park","Airport","Library","College","Public Meeting"];
+
+function clearSelected(){
+document.querySelectorAll(".card").forEach(c=>c.classList.remove("selected"));
+}
+
+function selectClimate(c,el){
+clearSelected();
+el.classList.add("selected");
+climate=c;
+setTimeout(()=>showStep(2),700);
+}
+
+function selectOccasion(o,el){
+clearSelected();
+el.classList.add("selected");
+occasion=o;
+setTimeout(()=>showStep(3),700);
+}
+
+function selectPlace(p,el){
+clearSelected();
+el.classList.add("selected");
+place=p;
+setTimeout(findOutfits,700);
+}
+
+function findOutfits(){
+showStep("loading");
+setTimeout(showImages,5000);
+}
+
+function showImages(){
+document.getElementById("loading").classList.remove("active");
+const outfits=document.getElementById("outfits");
+outfits.innerHTML="";
+
+const cIndex=climates.indexOf(climate);
+const oIndex=occasions.indexOf(occasion);
+const pIndex=places.indexOf(place);
+
+const id=String(cIndex*144 + oIndex*12 + pIndex +1).padStart(3,"0");
+const code=climate[0].toLowerCase()+occasion[0].toLowerCase()+place[0].toLowerCase();
+
+for(let i=1;i<=50;i++){
+const num=String(i).padStart(2,"0");
+const img=document.createElement("img");
+img.src=id+code+num+".jpg";
+
+img.onerror=function(){this.style.display="none";};
+img.onclick=()=>{document.getElementById("popupImg").src=img.src;document.getElementById("popup").style.display="flex";};
+outfits.appendChild(img);
+}
+}
+
+function showStep(n){
+document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
+if(n==="loading"){document.getElementById("loading").classList.add("active");}
+else{document.getElementById("step"+n).classList.add("active");}
+}
+</script>
+
+</body>
+                                                            </html>
